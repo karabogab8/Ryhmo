@@ -1,12 +1,12 @@
 // Spotify API Configuration
-const SPOTIFY_CLIENT_ID = "770d04e53bd84409bef0d86a6d9f2859" // Buraya kendi Client ID'nizi ekleyin
-const SPOTIFY_CLIENT_SECRET = "6fa4d6e511c54dc299c4d4dedf2aa02d" // Buraya kendi Client Secret'ınızı ekleyin
+const SPOTIFY_CLIENT_ID = "770d04e53bd84409bef0d86a6d9f2859";
+const SPOTIFY_CLIENT_SECRET = "6fa4d6e511c54dc299c4d4dedf2aa02d";
 
-let spotifyAccessToken = null
+let spotifyAccessToken = null;
 
 // Deezer API Configuration
-const DEEZER_API = "https://api.allorigins.win/raw?url="
-const DEEZER_BASE = "https://api.deezer.com"
+const DEEZER_API = "https://api.allorigins.win/raw?url=";
+const DEEZER_BASE = "https://api.deezer.com";
 
 const genreMapping = {
   pop: "pop",
@@ -17,52 +17,52 @@ const genreMapping = {
   classical: "classical",
   country: "country",
   rnb: "r-n-b",
-}
+};
 
-let currentSongs = []
-let currentIndex = 0
-let selectedGenres = []
-const likedSongs = JSON.parse(localStorage.getItem("likedSongs")) || []
-let currentAudio = null
-let audioTimeout = null
+let currentSongs = [];
+let currentIndex = 0;
+let selectedGenres = [];
+const likedSongs = JSON.parse(localStorage.getItem("likedSongs")) || [];
+let currentAudio = null;
+let audioTimeout = null;
 
 // DOM Elements
-const genreScreen = document.getElementById("genreScreen")
-const mainScreen = document.getElementById("mainScreen")
-const likedScreen = document.getElementById("likedScreen")
-const genreButtons = document.querySelectorAll(".genre-btn")
-const startBtn = document.getElementById("startBtn")
-const songCard = document.getElementById("songCard")
-const likeBtn = document.getElementById("likeBtn")
-const skipBtn = document.getElementById("skipBtn")
-const likedBtn = document.getElementById("likedBtn")
-const backBtn = document.getElementById("backBtn")
-const likedList = document.getElementById("likedList")
-const loadingEl = document.getElementById("loading")
+const genreScreen = document.getElementById("genreScreen");
+const mainScreen = document.getElementById("mainScreen");
+const likedScreen = document.getElementById("likedScreen");
+const genreButtons = document.querySelectorAll(".genre-btn");
+const startBtn = document.getElementById("startBtn");
+const songCard = document.getElementById("songCard");
+const likeBtn = document.getElementById("likeBtn");
+const skipBtn = document.getElementById("skipBtn");
+const likedBtn = document.getElementById("likedBtn");
+const backBtn = document.getElementById("backBtn");
+const likedList = document.getElementById("likedList");
+const loadingEl = document.getElementById("loading");
 
 // Genre Selection
 genreButtons.forEach((btn) => {
   btn.addEventListener("click", () => {
-    const genre = btn.dataset.genre
+    const genre = btn.dataset.genre;
     if (selectedGenres.includes(genre)) {
-      selectedGenres = selectedGenres.filter((g) => g !== genre)
-      btn.classList.remove("active")
+      selectedGenres = selectedGenres.filter((g) => g !== genre);
+      btn.classList.remove("active");
     } else {
-      selectedGenres.push(genre)
-      btn.classList.add("active")
+      selectedGenres.push(genre);
+      btn.classList.add("active");
     }
-    startBtn.disabled = selectedGenres.length === 0
-  })
-})
+    startBtn.disabled = selectedGenres.length === 0;
+  });
+});
 
 // Start Button
 startBtn.addEventListener("click", async () => {
   if (selectedGenres.length > 0) {
-    genreScreen.classList.remove("active")
-    mainScreen.classList.add("active")
-    await loadSongs()
+    genreScreen.classList.remove("active");
+    mainScreen.classList.add("active");
+    await loadSongs();
   }
-})
+});
 
 // Spotify authentication function
 async function getSpotifyToken() {
@@ -71,67 +71,77 @@ async function getSpotifyToken() {
       method: "POST",
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
-        Authorization: "Basic " + btoa(SPOTIFY_CLIENT_ID + ":" + SPOTIFY_CLIENT_SECRET),
+        Authorization:
+          "Basic " + btoa(SPOTIFY_CLIENT_ID + ":" + SPOTIFY_CLIENT_SECRET),
       },
       body: "grant_type=client_credentials",
-    })
+    });
 
-    const data = await response.json()
-    spotifyAccessToken = data.access_token
-    return spotifyAccessToken
+    const data = await response.json();
+    spotifyAccessToken = data.access_token;
+    return spotifyAccessToken;
   } catch (error) {
-    console.error("Spotify authentication error:", error)
-    return null
+    console.error("Spotify authentication error:", error);
+    return null;
   }
 }
 
-// Load Songs using Spotify API
+// Load Songs using Spotify API (updated)
 async function loadSongs() {
-  loadingEl.classList.remove("hidden")
-  currentSongs = []
+  loadingEl.classList.remove("hidden");
+  currentSongs = [];
 
   try {
-    // Get Spotify access token if not available
     if (!spotifyAccessToken) {
-      await getSpotifyToken()
+      await getSpotifyToken();
     }
 
     if (!spotifyAccessToken) {
-      alert("Spotify API bağlantısı kurulamadı. Lütfen API anahtarlarınızı kontrol edin.")
-      return
+      alert("Spotify API bağlantısı kurulamadı. Lütfen API anahtarlarınızı kontrol edin.");
+      return;
     }
 
     for (const genre of selectedGenres) {
-      const genreName = genreMapping[genre]
+      const genreName = genreMapping[genre];
 
-      // Search for tracks by genre
-      const searchUrl = `https://api.spotify.com/v1/search?q=genre:${genreName}&type=track&limit=50&market=NO`
+      // 1️⃣ Search for artists by genre
+      const artistSearchUrl = `https://api.spotify.com/v1/search?q=genre:"${genreName}"&type=artist&limit=10&market=TR`;
+      let artistResponse = await fetch(artistSearchUrl, {
+        headers: { Authorization: `Bearer ${spotifyAccessToken}` },
+      });
 
-      const response = await fetch(searchUrl, {
-        headers: {
-          Authorization: `Bearer ${spotifyAccessToken}`,
-        },
-      })
-
-      if (response.status === 401) {
-        // Token expired, get new one
-        await getSpotifyToken()
-        continue
+      if (artistResponse.status === 401) {
+        await getSpotifyToken(); // refresh token
+        artistResponse = await fetch(artistSearchUrl, {
+          headers: { Authorization: `Bearer ${spotifyAccessToken}` },
+        });
       }
 
-      const data = await response.json()
+      const artistData = await artistResponse.json();
+      if (!artistData.artists || !artistData.artists.items) continue;
 
-      if (data.tracks && data.tracks.items) {
-        // Filter tracks that have preview URLs
-        const tracksWithPreview = data.tracks.items.filter((track) => track.preview_url)
+      for (const artist of artistData.artists.items) {
+        // 2️⃣ Get artist's top tracks
+        const topTracksUrl = `https://api.spotify.com/v1/artists/${artist.id}/top-tracks?market=TR`;
+        let tracksResponse = await fetch(topTracksUrl, {
+          headers: { Authorization: `Bearer ${spotifyAccessToken}` },
+        });
 
-        // Map to our format
+        if (tracksResponse.status === 401) {
+          await getSpotifyToken();
+          tracksResponse = await fetch(topTracksUrl, {
+            headers: { Authorization: `Bearer ${spotifyAccessToken}` },
+          });
+        }
+
+        const tracksData = await tracksResponse.json();
+        if (!tracksData.tracks) continue;
+
+        const tracksWithPreview = tracksData.tracks.filter((track) => track.preview_url);
         const mappedTracks = tracksWithPreview.map((track) => ({
           id: track.id,
           title: track.name,
-          artist: {
-            name: track.artists[0].name,
-          },
+          artist: { name: artist.name },
           album: {
             title: track.album.name,
             cover_medium: track.album.images[1]?.url || track.album.images[0]?.url,
@@ -139,37 +149,37 @@ async function loadSongs() {
             cover_xl: track.album.images[0]?.url,
           },
           preview: track.preview_url,
-        }))
+        }));
 
-        currentSongs.push(...mappedTracks)
+        currentSongs.push(...mappedTracks);
       }
     }
 
     // Shuffle all songs
-    currentSongs = currentSongs.sort(() => Math.random() - 0.5)
+    currentSongs = currentSongs.sort(() => Math.random() - 0.5);
 
     if (currentSongs.length > 0) {
-      currentIndex = 0
-      displayCurrentSong()
+      currentIndex = 0;
+      displayCurrentSong();
     } else {
-      alert("Ingen sanger funnet med forhåndsvisning. Prøv andre sjangre.")
+      alert("Ingen sanger funnet med forhåndsvisning. Prøv andre sjangre.");
     }
   } catch (error) {
-    console.error("Error loading songs:", error)
-    alert("Kunne ikke laste sanger. Prøv igjen senere.")
+    console.error("Error loading songs:", error);
+    alert("Kunne ikke laste sanger. Prøv igjen senere.");
   } finally {
-    loadingEl.classList.add("hidden")
+    loadingEl.classList.add("hidden");
   }
 }
 
 // Display Current Song
 function displayCurrentSong() {
   if (currentIndex >= currentSongs.length) {
-    loadSongs()
-    return
+    loadSongs();
+    return;
   }
 
-  const song = currentSongs[currentIndex]
+  const song = currentSongs[currentIndex];
 
   songCard.innerHTML = `
         <div class="song-image">
@@ -180,52 +190,46 @@ function displayCurrentSong() {
             <p class="song-artist">${song.artist.name}</p>
             <p class="song-album">${song.album.title}</p>
         </div>
-    `
+    `;
 
-  playPreview(song.preview)
+  playPreview(song.preview);
 }
 
 // Play 15-second Preview
 function playPreview(previewUrl) {
   if (currentAudio) {
-    currentAudio.pause()
-    currentAudio = null
+    currentAudio.pause();
+    currentAudio = null;
   }
 
   if (audioTimeout) {
-    clearTimeout(audioTimeout)
+    clearTimeout(audioTimeout);
   }
 
-  const songImage = document.querySelector(".song-image")
+  const songImage = document.querySelector(".song-image");
   if (songImage) {
-    songImage.classList.remove("paused")
+    songImage.classList.remove("paused");
   }
 
-  currentAudio = new Audio(previewUrl)
-  currentAudio.volume = 0.5
-  currentAudio.play()
+  currentAudio = new Audio(previewUrl);
+  currentAudio.volume = 0.5;
+  currentAudio.play();
 
-  // Stop after 15 seconds
   audioTimeout = setTimeout(() => {
     if (currentAudio) {
-      currentAudio.pause()
-      if (songImage) {
-        songImage.classList.add("paused")
-      }
+      currentAudio.pause();
+      if (songImage) songImage.classList.add("paused");
     }
-  }, 15000)
+  }, 15000);
 
-  // Pause animation when audio naturally ends
   currentAudio.addEventListener("ended", () => {
-    if (songImage) {
-      songImage.classList.add("paused")
-    }
-  })
+    if (songImage) songImage.classList.add("paused");
+  });
 }
 
 // Like Button
 likeBtn.addEventListener("click", () => {
-  const song = currentSongs[currentIndex]
+  const song = currentSongs[currentIndex];
 
   if (!likedSongs.find((s) => s.id === song.id)) {
     likedSongs.push({
@@ -235,59 +239,59 @@ likeBtn.addEventListener("click", () => {
       album: song.album.title,
       cover: song.album.cover_medium,
       preview: song.preview,
-    })
-    localStorage.setItem("likedSongs", JSON.stringify(likedSongs))
+    });
+    localStorage.setItem("likedSongs", JSON.stringify(likedSongs));
   }
 
-  animateCard("like")
-  nextSong()
-})
+  animateCard("like");
+  nextSong();
+});
 
 // Skip Button
 skipBtn.addEventListener("click", () => {
-  animateCard("skip")
-  nextSong()
-})
+  animateCard("skip");
+  nextSong();
+});
 
 // Next Song
 function nextSong() {
-  currentIndex++
+  currentIndex++;
   setTimeout(() => {
-    displayCurrentSong()
-  }, 300)
+    displayCurrentSong();
+  }, 300);
 }
 
 // Animate Card
 function animateCard(action) {
-  const card = songCard
+  const card = songCard;
   if (action === "like") {
-    card.style.transform = "translateX(150%) rotate(20deg)"
+    card.style.transform = "translateX(150%) rotate(20deg)";
   } else {
-    card.style.transform = "translateX(-150%) rotate(-20deg)"
+    card.style.transform = "translateX(-150%) rotate(-20deg)";
   }
 
   setTimeout(() => {
-    card.style.transform = "translateX(0) rotate(0)"
-  }, 300)
+    card.style.transform = "translateX(0) rotate(0)";
+  }, 300);
 }
 
 // Liked Songs Screen
 likedBtn.addEventListener("click", () => {
-  mainScreen.classList.remove("active")
-  likedScreen.classList.add("active")
-  displayLikedSongs()
-})
+  mainScreen.classList.remove("active");
+  likedScreen.classList.add("active");
+  displayLikedSongs();
+});
 
 backBtn.addEventListener("click", () => {
-  likedScreen.classList.remove("active")
-  mainScreen.classList.add("active")
-})
+  likedScreen.classList.remove("active");
+  mainScreen.classList.add("active");
+});
 
 // Display Liked Songs
 function displayLikedSongs() {
   if (likedSongs.length === 0) {
-    likedList.innerHTML = '<p class="empty-message">Du har ikke likt noen sanger ennå</p>'
-    return
+    likedList.innerHTML = '<p class="empty-message">Du har ikke likt noen sanger ennå</p>';
+    return;
   }
 
   likedList.innerHTML = likedSongs
@@ -303,23 +307,23 @@ function displayLikedSongs() {
                 ▶
             </button>
         </div>
-    `,
+    `
     )
-    .join("")
+    .join("");
 }
 
 // Play Liked Song
 function playLikedSong(previewUrl) {
-  playPreview(previewUrl)
+  playPreview(previewUrl);
 }
 
 // Keyboard Controls
 document.addEventListener("keydown", (e) => {
-  if (!mainScreen.classList.contains("active")) return
+  if (!mainScreen.classList.contains("active")) return;
 
   if (e.key === "ArrowRight") {
-    likeBtn.click()
+    likeBtn.click();
   } else if (e.key === "ArrowLeft") {
-    skipBtn.click()
+    skipBtn.click();
   }
-})
+});

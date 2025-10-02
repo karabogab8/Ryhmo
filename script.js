@@ -1,6 +1,6 @@
 // Spotify API Configuration
-const SPOTIFY_CLIENT_ID = "DIN_SPOTIFY_CLIENT_ID" // Buraya kendi Client ID'nizi ekleyin
-const SPOTIFY_CLIENT_SECRET = "DIN_SPOTIFY_CLIENT_SECRET" // Buraya kendi Client Secret'ınızı ekleyin
+const SPOTIFY_CLIENT_ID = "770d04e53bd84409bef0d86a6d9f2859" // Buraya kendi Client ID'nizi ekleyin
+const SPOTIFY_CLIENT_SECRET = "6fa4d6e511c54dc299c4d4dedf2aa02d" // Buraya kendi Client Secret'ınızı ekleyin
 
 let spotifyAccessToken = null
 

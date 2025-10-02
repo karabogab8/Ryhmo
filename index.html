@@ -4,63 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rhymo - 15 sekunder til din neste hit</title>
-    <style>
-        /* ----------- CSS Başlangıcı ----------- */
-        * {margin:0;padding:0;box-sizing:border-box;}
-        body {font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;background:#000;color:#fff;min-height:100vh;overflow-x:hidden;}
-        .screen {display:none;min-height:100vh;animation:fadeIn 0.5s ease;}
-        .screen.active {display:flex;flex-direction:column;}
-        .hidden {display:none !important;}
-        .loading {position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.9);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:1000;}
-        .spinner {width:50px;height:50px;border:4px solid rgba(255,255,255,0.1);border-top-color:#fff;border-radius:50%;animation:spin 1s linear infinite;margin-bottom:1rem;}
-        @keyframes spin {to{transform:rotate(360deg);}}
-        #genreScreen .container {max-width:600px;margin:0 auto;padding:3rem 2rem;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;}
-        .logo {width:120px;height:auto;margin-bottom:2rem;}
-        .title {font-size:3rem;font-weight:700;margin-bottom:0.5rem;letter-spacing:-1px;}
-        .tagline {font-size:1.125rem;color:#999;margin-bottom:3rem;}
-        .genre-grid {display:grid;grid-template-columns:repeat(2,1fr);gap:1rem;width:100%;margin-bottom:3rem;}
-        .genre-btn {background:rgba(255,255,255,0.05);border:2px solid rgba(255,255,255,0.1);color:#fff;padding:1.5rem 1rem;border-radius:16px;cursor:pointer;font-size:1rem;font-weight:600;transition:all 0.3s ease;display:flex;flex-direction:column;align-items:center;gap:0.5rem;}
-        .genre-icon {font-size:2rem;}
-        .genre-btn:hover {background:rgba(255,255,255,0.1);border-color:rgba(255,255,255,0.3);transform:translateY(-4px);}
-        .genre-btn.active {background:#fff;color:#000;border-color:#fff;}
-        .btn-primary {background:#fff;color:#000;border:none;padding:1rem 3rem;border-radius:50px;font-size:1.125rem;font-weight:700;cursor:pointer;transition:all 0.3s ease;}
-        .btn-primary:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 8px 24px rgba(255,255,255,0.3);}
-        .btn-primary:disabled{background:rgba(255,255,255,0.2);color:rgba(255,255,255,0.4);cursor:not-allowed;}
-        #mainScreen {padding:1.5rem;}
-        .header {display:flex;align-items:center;justify-content:space-between;margin-bottom:2rem;}
-        .header-logo {width:100px;height:auto;}
-        .icon-btn {background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:#fff;width:48px;height:48px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.3s ease;}
-        .icon-btn:hover {background:rgba(255,255,255,0.2);transform:scale(1.05);}
-        .card-container {flex:1;display:flex;align-items:center;justify-content:center;margin-bottom:2rem;}
-        .song-card {background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:24px;padding:2rem;width:100%;max-width:400px;transition:transform 0.3s ease;text-align:center;}
-        .song-info {text-align:center;}
-        .song-title {font-size:1.5rem;font-weight:700;margin-bottom:0.5rem;}
-        .song-artist {font-size:1.125rem;color:#ccc;margin-bottom:0.25rem;}
-        .song-album {font-size:0.875rem;color:#999;}
-        .controls {display:flex;gap:2rem;justify-content:center;margin-bottom:1rem;}
-        .control-btn {width:70px;height:70px;border-radius:50%;border:none;cursor:pointer;transition:all 0.3s ease;display:flex;align-items:center;justify-content:center;}
-        .skip-btn {background:rgba(255,255,255,0.1);color:#fff;border:2px solid rgba(255,255,255,0.2);}
-        .skip-btn:hover {background:rgba(255,255,255,0.2);transform:scale(1.1) rotate(-10deg);}
-        .like-btn {background:#fff;color:#000;}
-        .like-btn:hover {transform:scale(1.1) rotate(10deg);box-shadow:0 8px 24px rgba(255,255,255,0.4);}
-        .hint {text-align:center;color:#666;font-size:0.875rem;}
-        #likedScreen {padding:1.5rem;}
-        #likedScreen h2 {font-size:1.5rem;font-weight:700;}
-        .liked-list {display:flex;flex-direction:column;gap:1rem;max-width:600px;margin:0 auto;}
-        .liked-song-item {background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:1rem;display:flex;align-items:center;gap:1rem;transition:all 0.3s ease;}
-        .liked-song-item:hover {background:rgba(255,255,255,0.1);transform:translateX(8px);}
-        .liked-song-item img {width:60px;height:60px;border-radius:8px;object-fit:cover;}
-        .liked-song-info {flex:1;}
-        .play-liked-btn {background:#fff;color:#000;border:none;width:40px;height:40px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.3s ease;}
-        .play-liked-btn:hover {transform:scale(1.1);}
-        .empty-message {text-align:center;color:#666;font-size:1.125rem;padding:3rem;}
-        @keyframes fadeIn {from {opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
-        /* ----------- CSS Bitişi ----------- */
-    </style>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <!-- Loading -->
-    <div id="loading" class="hidden">
+    <!-- Completely restructured HTML with consistent IDs and proper layout -->
+    <div id="loading" class="loading hidden">
         <div class="spinner"></div>
         <p>Laster sanger...</p>
     </div>
@@ -68,79 +16,99 @@
     <!-- Genre Selection Screen -->
     <div id="genreScreen" class="screen active">
         <div class="container">
+            <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Black%20White%20and-nCmsfFi9Ta0jg2k9OV4m5x8S4FaeMC.png" alt="Rhymo Logo" class="logo">
             <h1 class="title">Rhymo</h1>
             <p class="tagline">15 sekunder til din neste hit</p>
+            
             <div class="genre-grid">
-                <button class="genre-btn" data-genre="pop">Pop</button>
-                <button class="genre-btn" data-genre="rock">Rock</button>
-                <button class="genre-btn" data-genre="hiphop">Hip Hop</button>
-                <button class="genre-btn" data-genre="electronic">Electronic</button>
-                <button class="genre-btn" data-genre="jazz">Jazz</button>
-                <button class="genre-btn" data-genre="classical">Classical</button>
-                <button class="genre-btn" data-genre="country">Country</button>
-                <button class="genre-btn" data-genre="rnb">R&B</button>
+                <button class="genre-btn" data-genre="pop">
+                    <span class="genre-icon">🎵</span>
+                    <span>Pop</span>
+                </button>
+                <button class="genre-btn" data-genre="rock">
+                    <span class="genre-icon">🎸</span>
+                    <span>Rock</span>
+                </button>
+                <button class="genre-btn" data-genre="hiphop">
+                    <span class="genre-icon">🎤</span>
+                    <span>Hip Hop</span>
+                </button>
+                <button class="genre-btn" data-genre="electronic">
+                    <span class="genre-icon">🎧</span>
+                    <span>Electronic</span>
+                </button>
+                <button class="genre-btn" data-genre="jazz">
+                    <span class="genre-icon">🎺</span>
+                    <span>Jazz</span>
+                </button>
+                <button class="genre-btn" data-genre="classical">
+                    <span class="genre-icon">🎻</span>
+                    <span>Classical</span>
+                </button>
+                <button class="genre-btn" data-genre="country">
+                    <span class="genre-icon">🤠</span>
+                    <span>Country</span>
+                </button>
+                <button class="genre-btn" data-genre="rnb">
+                    <span class="genre-icon">💿</span>
+                    <span>R&B</span>
+                </button>
             </div>
+            
             <button id="startBtn" class="btn-primary" disabled>Start oppdagelsen</button>
         </div>
     </div>
 
-    <!-- Main Screen -->
+    <!-- Main Swipe Screen -->
     <div id="mainScreen" class="screen">
         <div class="header">
-            <button id="likedBtn" class="icon-btn">Favoritter</button>
+            <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Black%20White%20and-nCmsfFi9Ta0jg2k9OV4m5x8S4FaeMC.png" alt="Rhymo" class="header-logo">
+            <button id="likedBtn" class="icon-btn">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                </svg>
+            </button>
         </div>
+
         <div class="card-container">
             <div id="songCard" class="song-card"></div>
         </div>
+
         <div class="controls">
-            <button id="skipBtn" class="control-btn skip-btn">Skip</button>
-            <button id="likeBtn" class="control-btn like-btn">Like</button>
+            <button id="skipBtn" class="control-btn skip-btn">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+            <button id="likeBtn" class="control-btn like-btn">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                </svg>
+            </button>
         </div>
+
         <p class="hint">Bruk piltastene eller klikk for å velge</p>
     </div>
 
     <!-- Liked Songs Screen -->
     <div id="likedScreen" class="screen">
-        <button id="backBtn">Tilbake</button>
-        <h2>Mine favoritter</h2>
+        <div class="header">
+            <button id="backBtn" class="icon-btn">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="19" y1="12" x2="5" y2="12"></line>
+                    <polyline points="12 19 5 12 12 5"></polyline>
+                </svg>
+            </button>
+            <h2>Mine favoritter</h2>
+            <div style="width: 40px;"></div>
+        </div>
+
         <div id="likedList" class="liked-list"></div>
     </div>
 
-    <script>
-        /* ----------- JS Başlangıcı (Deezer-only) ----------- */
-        const DEEZER_API = "https://api.allorigins.win/raw?url=";
-        const DEEZER_BASE = "https://api.deezer.com";
-        const genreMapping = {pop:132,rock:152,hiphop:116,electronic:106,jazz:129,classical:98,country:144,rnb:165};
-        let currentSongs=[],currentIndex=0,selectedGenres=[];
-        const likedSongs=JSON.parse(localStorage.getItem("likedSongs"))||[];
-        let currentAudio=null,audioTimeout=null;
-
-        const genreScreen=document.getElementById("genreScreen");
-        const mainScreen=document.getElementById("mainScreen");
-        const likedScreen=document.getElementById("likedScreen");
-        const genreButtons=document.querySelectorAll(".genre-btn");
-        const startBtn=document.getElementById("startBtn");
-        const songCard=document.getElementById("songCard");
-        const likeBtn=document.getElementById("likeBtn");
-        const skipBtn=document.getElementById("skipBtn");
-        const likedBtn=document.getElementById("likedBtn");
-        const backBtn=document.getElementById("backBtn");
-        const likedList=document.getElementById("likedList");
-        const loadingEl=document.getElementById("loading");
-
-        genreButtons.forEach(btn=>{btn.addEventListener("click",()=>{const genre=btn.dataset.genre;if(selectedGenres.includes(genre)){selectedGenres=selectedGenres.filter(g=>g!==genre)}else{selectedGenres.push(genre)}startBtn.disabled=selectedGenres.length===0})});
-        startBtn.addEventListener("click",async()=>{genreScreen.classList.remove("active");mainScreen.classList.add("active");await loadSongs()});
-        async function loadSongs(){loadingEl.classList.remove("hidden");currentSongs=[];try{for(const genre of selectedGenres){const genreId=genreMapping[genre];const artistsUrl=`${DEEZER_API}${encodeURIComponent(`${DEEZER_BASE}/genre/${genreId}/artists`)}`;const artistsRes=await fetch(artistsUrl);const artistsData=await artistsRes.json();if(!artistsData.data)continue;for(const artist of artistsData.data){const topTracksUrl=`${DEEZER_API}${encodeURIComponent(`${DEEZER_BASE}/artist/${artist.id}/top?limit=5`)}`;const tracksRes=await fetch(topTracksUrl);const tracksData=await tracksRes.json();if(!tracksData.data)continue;const tracksWithPreview=tracksData.data.filter(track=>track.preview);const mappedTracks=tracksWithPreview.map(track=>({id:track.id,title:track.title,artist:{name:track.artist.name},album:{title:track.album.title,cover_medium:track.album.cover_medium,cover_big:track.album.cover_big,cover_xl:track.album.cover_xl},preview:track.preview}));currentSongs.push(...mappedTracks)}}currentSongs=currentSongs.sort(()=>Math.random()-0.5);if(currentSongs.length>0){currentIndex=0;displayCurrentSong()}else{alert("Hiç şarkı bulunamadı. Lütfen başka bir genre seçin.")}}catch(e){console.error(e);alert("Şarkılar yüklenirken hata oluştu.")}finally{loadingEl.classList.add("hidden")}}
-
-        function displayCurrentSong(){if(currentIndex>=currentSongs.length){loadSongs();return}const song=currentSongs[currentIndex];songCard.innerHTML=`<p><strong>${song.title}</strong> - ${song.artist.name}</p>`;playPreview(song.preview)}
-        function playPreview(url){if(currentAudio){currentAudio.pause();currentAudio=null}if(audioTimeout)clearTimeout(audioTimeout);currentAudio=new Audio(url);currentAudio.volume=0.5;currentAudio.play();audioTimeout=setTimeout(()=>{if(currentAudio)currentAudio.pause()},15000)}
-        likeBtn.addEventListener("click",()=>{const song=currentSongs[currentIndex];if(!likedSongs.find(s=>s.id===song.id)){likedSongs.push({id:song.id,title:song.title,artist:song.artist.name,album:song.album.title,cover:song.album.cover_medium,preview:song.preview});localStorage.setItem("likedSongs",JSON.stringify(likedSongs))}nextSong()});
-        skipBtn.addEventListener("click",nextSong);function nextSong(){currentIndex++;displayCurrentSong()}
-        likedBtn.addEventListener("click",()=>{mainScreen.classList.remove("active");likedScreen.classList.add("active");displayLikedSongs()});
-        backBtn.addEventListener("click",()=>{likedScreen.classList.remove("active");mainScreen.classList.add("active")});
-        function displayLikedSongs(){if(likedSongs.length===0){likedList.innerHTML="<p>Du har ikke likt noen sanger ennå</p>";return}likedList.innerHTML=likedSongs.map(s=>`<p>${s.title} - ${s.artist}</p>`).join("")}
-        document.addEventListener("keydown",e=>{if(!mainScreen.classList.contains("active"))return;if(e.key==="ArrowRight")likeBtn.click();else if(e.key==="ArrowLeft")skipBtn.click();});
-        /* ----------- JS Bitişi ----------- */
-    </script>
+    <script src="script.js"></script>
 </body>
 </html>
+
+

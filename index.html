@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rhymo - 15 sekunder til din neste hit</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Completely restructured HTML with consistent IDs and proper layout -->
+    <div id="loading" class="loading hidden">
+        <div class="spinner"></div>
+        <p>Laster sanger...</p>
+    </div>
+
+    <!-- Genre Selection Screen -->
+    <div id="genreScreen" class="screen active">
+        <div class="container">
+            <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Black%20White%20and-nCmsfFi9Ta0jg2k9OV4m5x8S4FaeMC.png" alt="Rhymo Logo" class="logo">
+            <h1 class="title">Rhymo</h1>
+            <p class="tagline">15 sekunder til din neste hit</p>
+            
+            <div class="genre-grid">
+                <button class="genre-btn" data-genre="pop">
+                    <span class="genre-icon">🎵</span>
+                    <span>Pop</span>
+                </button>
+                <button class="genre-btn" data-genre="rock">
+                    <span class="genre-icon">🎸</span>
+                    <span>Rock</span>
+                </button>
+                <button class="genre-btn" data-genre="hiphop">
+                    <span class="genre-icon">🎤</span>
+                    <span>Hip Hop</span>
+                </button>
+                <button class="genre-btn" data-genre="electronic">
+                    <span class="genre-icon">🎧</span>
+                    <span>Electronic</span>
+                </button>
+                <button class="genre-btn" data-genre="jazz">
+                    <span class="genre-icon">🎺</span>
+                    <span>Jazz</span>
+                </button>
+                <button class="genre-btn" data-genre="classical">
+                    <span class="genre-icon">🎻</span>
+                    <span>Classical</span>
+                </button>
+                <button class="genre-btn" data-genre="country">
+                    <span class="genre-icon">🤠</span>
+                    <span>Country</span>
+                </button>
+                <button class="genre-btn" data-genre="rnb">
+                    <span class="genre-icon">💿</span>
+                    <span>R&B</span>
+                </button>
+            </div>
+            
+            <button id="startBtn" class="btn-primary" disabled>Start oppdagelsen</button>
+        </div>
+    </div>
+
+    <!-- Main Swipe Screen -->
+    <div id="mainScreen" class="screen">
+        <div class="header">
+            <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Black%20White%20and-nCmsfFi9Ta0jg2k9OV4m5x8S4FaeMC.png" alt="Rhymo" class="header-logo">
+            <button id="likedBtn" class="icon-btn">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                </svg>
+            </button>
+        </div>
+
+        <div class="card-container">
+            <div id="songCard" class="song-card"></div>
+        </div>
+
+        <div class="controls">
+            <button id="skipBtn" class="control-btn skip-btn">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+            <button id="likeBtn" class="control-btn like-btn">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                </svg>
+            </button>
+        </div>
+
+        <p class="hint">Bruk piltastene eller klikk for å velge</p>
+    </div>
+
+    <!-- Liked Songs Screen -->
+    <div id="likedScreen" class="screen">
+        <div class="header">
+            <button id="backBtn" class="icon-btn">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="19" y1="12" x2="5" y2="12"></line>
+                    <polyline points="12 19 5 12 12 5"></polyline>
+                </svg>
+            </button>
+            <h2>Mine favoritter</h2>
+            <div style="width: 40px;"></div>
+        </div>
+
+        <div id="likedList" class="liked-list"></div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

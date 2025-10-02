@@ -36,15 +36,13 @@ const likedList = document.getElementById("likedList");
 const loadingEl = document.getElementById("loading");
 
 // Genre Selection
-genreButtons.forEach((btn) => {
+genreButtons.forEach(btn => {
   btn.addEventListener("click", () => {
     const genre = btn.dataset.genre;
     if (selectedGenres.includes(genre)) {
-      selectedGenres = selectedGenres.filter((g) => g !== genre);
-      btn.classList.remove("active");
+      selectedGenres = selectedGenres.filter(g => g !== genre);
     } else {
       selectedGenres.push(genre);
-      btn.classList.add("active");
     }
     startBtn.disabled = selectedGenres.length === 0;
   });
@@ -52,14 +50,12 @@ genreButtons.forEach((btn) => {
 
 // Start Button
 startBtn.addEventListener("click", async () => {
-  if (selectedGenres.length > 0) {
-    genreScreen.classList.remove("active");
-    mainScreen.classList.add("active");
-    await loadSongs();
-  }
+  genreScreen.classList.remove("active");
+  mainScreen.classList.add("active");
+  await loadSongs();
 });
 
-// Load Songs using Deezer API
+// Load Songs
 async function loadSongs() {
   loadingEl.classList.remove("hidden");
   currentSongs = [];
@@ -68,24 +64,19 @@ async function loadSongs() {
     for (const genre of selectedGenres) {
       const genreId = genreMapping[genre];
 
-      // 1️⃣ Get artists for genre
+      // Get artists
       const artistsUrl = `${DEEZER_API}${encodeURIComponent(`${DEEZER_BASE}/genre/${genreId}/artists`)}`;
       const artistsRes = await fetch(artistsUrl);
       const artistsData = await artistsRes.json();
-
-      if (!artistsData.data || artistsData.data.length === 0) continue;
+      if (!artistsData.data) continue;
 
       for (const artist of artistsData.data) {
-        // 2️⃣ Get top tracks for each artist
         const topTracksUrl = `${DEEZER_API}${encodeURIComponent(`${DEEZER_BASE}/artist/${artist.id}/top?limit=5`)}`;
         const tracksRes = await fetch(topTracksUrl);
         const tracksData = await tracksRes.json();
+        if (!tracksData.data) continue;
 
-        if (!tracksData.data || tracksData.data.length === 0) continue;
-
-        // 3️⃣ Filter tracks with preview
         const tracksWithPreview = tracksData.data.filter(track => track.preview);
-
         const mappedTracks = tracksWithPreview.map(track => ({
           id: track.id,
           title: track.title,
@@ -98,12 +89,11 @@ async function loadSongs() {
           },
           preview: track.preview,
         }));
-
         currentSongs.push(...mappedTracks);
       }
     }
 
-    // Shuffle all songs
+    // Shuffle
     currentSongs = currentSongs.sort(() => Math.random() - 0.5);
 
     if (currentSongs.length > 0) {
@@ -112,72 +102,41 @@ async function loadSongs() {
     } else {
       alert("Hiç şarkı bulunamadı. Lütfen başka bir genre seçin.");
     }
-  } catch (error) {
-    console.error("Error loading songs:", error);
-    alert("Şarkılar yüklenirken hata oluştu. Lütfen tekrar deneyin.");
+  } catch(e) {
+    console.error(e);
+    alert("Şarkılar yüklenirken hata oluştu.");
   } finally {
     loadingEl.classList.add("hidden");
   }
 }
 
-// Display Current Song
+// Display Song
 function displayCurrentSong() {
-  if (currentIndex >= currentSongs.length) {
-    loadSongs();
-    return;
-  }
-
+  if (currentIndex >= currentSongs.length) { loadSongs(); return; }
   const song = currentSongs[currentIndex];
 
   songCard.innerHTML = `
-        <div class="song-image">
-            <img src="${song.album.cover_xl || song.album.cover_big}" alt="${song.title}">
-        </div>
-        <div class="song-info">
-            <h2 class="song-title">${song.title}</h2>
-            <p class="song-artist">${song.artist.name}</p>
-            <p class="song-album">${song.album.title}</p>
-        </div>
-    `;
-
+    <p><strong>${song.title}</strong> - ${song.artist.name}</p>
+  `;
   playPreview(song.preview);
 }
 
-// Play 15-second Preview
-function playPreview(previewUrl) {
-  if (currentAudio) {
-    currentAudio.pause();
-    currentAudio = null;
-  }
+// Play Preview
+function playPreview(url) {
+  if (currentAudio) { currentAudio.pause(); currentAudio = null; }
+  if (audioTimeout) clearTimeout(audioTimeout);
 
-  if (audioTimeout) {
-    clearTimeout(audioTimeout);
-  }
-
-  const songImage = document.querySelector(".song-image");
-  if (songImage) songImage.classList.remove("paused");
-
-  currentAudio = new Audio(previewUrl);
+  currentAudio = new Audio(url);
   currentAudio.volume = 0.5;
   currentAudio.play();
 
-  audioTimeout = setTimeout(() => {
-    if (currentAudio) {
-      currentAudio.pause();
-      if (songImage) songImage.classList.add("paused");
-    }
-  }, 15000);
-
-  currentAudio.addEventListener("ended", () => {
-    if (songImage) songImage.classList.add("paused");
-  });
+  audioTimeout = setTimeout(() => { if(currentAudio) currentAudio.pause(); }, 15000);
 }
 
-// Like Button
+// Like & Skip
 likeBtn.addEventListener("click", () => {
   const song = currentSongs[currentIndex];
-
-  if (!likedSongs.find((s) => s.id === song.id)) {
+  if (!likedSongs.find(s => s.id === song.id)) {
     likedSongs.push({
       id: song.id,
       title: song.title,
@@ -188,40 +147,13 @@ likeBtn.addEventListener("click", () => {
     });
     localStorage.setItem("likedSongs", JSON.stringify(likedSongs));
   }
-
-  animateCard("like");
   nextSong();
 });
 
-// Skip Button
-skipBtn.addEventListener("click", () => {
-  animateCard("skip");
-  nextSong();
-});
+skipBtn.addEventListener("click", nextSong);
+function nextSong() { currentIndex++; displayCurrentSong(); }
 
-// Next Song
-function nextSong() {
-  currentIndex++;
-  setTimeout(() => {
-    displayCurrentSong();
-  }, 300);
-}
-
-// Animate Card
-function animateCard(action) {
-  const card = songCard;
-  if (action === "like") {
-    card.style.transform = "translateX(150%) rotate(20deg)";
-  } else {
-    card.style.transform = "translateX(-150%) rotate(-20deg)";
-  }
-
-  setTimeout(() => {
-    card.style.transform = "translateX(0) rotate(0)";
-  }, 300);
-}
-
-// Liked Songs Screen
+// Liked Songs
 likedBtn.addEventListener("click", () => {
   mainScreen.classList.remove("active");
   likedScreen.classList.add("active");
@@ -233,40 +165,17 @@ backBtn.addEventListener("click", () => {
   mainScreen.classList.add("active");
 });
 
-// Display Liked Songs
 function displayLikedSongs() {
   if (likedSongs.length === 0) {
-    likedList.innerHTML = '<p class="empty-message">Du har ikke likt noen sanger ennå</p>';
+    likedList.innerHTML = "<p>Du har ikke likt noen sanger ennå</p>";
     return;
   }
-
-  likedList.innerHTML = likedSongs
-    .map(
-      (song) => `
-        <div class="liked-song-item">
-            <img src="${song.cover}" alt="${song.title}">
-            <div class="liked-song-info">
-                <h3>${song.title}</h3>
-                <p>${song.artist}</p>
-            </div>
-            <button class="play-liked-btn" onclick="playLikedSong('${song.preview}')">
-                ▶
-            </button>
-        </div>
-    `
-    )
-    .join("");
+  likedList.innerHTML = likedSongs.map(s => `<p>${s.title} - ${s.artist}</p>`).join("");
 }
 
-// Play Liked Song
-function playLikedSong(previewUrl) {
-  playPreview(previewUrl);
-}
-
-// Keyboard Controls
-document.addEventListener("keydown", (e) => {
+// Keyboard controls
+document.addEventListener("keydown", e => {
   if (!mainScreen.classList.contains("active")) return;
-
   if (e.key === "ArrowRight") likeBtn.click();
   else if (e.key === "ArrowLeft") skipBtn.click();
 });

@@ -1,9 +1,3 @@
-// Spotify API Configuration
-const SPOTIFY_CLIENT_ID = "770d04e53bd84409bef0d86a6d9f2859";
-const SPOTIFY_CLIENT_SECRET = "6fa4d6e511c54dc299c4d4dedf2aa02d";
-
-let spotifyAccessToken = null;
-
 // Deezer API Configuration
 const DEEZER_API = "https://api.allorigins.win/raw?url=";
 const DEEZER_BASE = "https://api.deezer.com";
@@ -64,91 +58,33 @@ startBtn.addEventListener("click", async () => {
   }
 });
 
-// Spotify authentication function
-async function getSpotifyToken() {
-  try {
-    const response = await fetch("https://accounts.spotify.com/api/token", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-        Authorization:
-          "Basic " + btoa(SPOTIFY_CLIENT_ID + ":" + SPOTIFY_CLIENT_SECRET),
-      },
-      body: "grant_type=client_credentials",
-    });
-
-    const data = await response.json();
-    spotifyAccessToken = data.access_token;
-    return spotifyAccessToken;
-  } catch (error) {
-    console.error("Spotify authentication error:", error);
-    return null;
-  }
-}
-
-// Load Songs using Spotify API (updated)
+// Load Songs using Deezer API
 async function loadSongs() {
   loadingEl.classList.remove("hidden");
   currentSongs = [];
 
   try {
-    if (!spotifyAccessToken) {
-      await getSpotifyToken();
-    }
-
-    if (!spotifyAccessToken) {
-      alert("Spotify API bağlantısı kurulamadı. Lütfen API anahtarlarınızı kontrol edin.");
-      return;
-    }
-
     for (const genre of selectedGenres) {
       const genreName = genreMapping[genre];
+      const searchUrl = `${DEEZER_API}${encodeURIComponent(`${DEEZER_BASE}/search?q=genre:"${genreName}"&limit=50`)}`;
 
-      // 1️⃣ Search for artists by genre
-      const artistSearchUrl = `https://api.spotify.com/v1/search?q=genre:"${genreName}"&type=artist&limit=10&market=TR`;
-      let artistResponse = await fetch(artistSearchUrl, {
-        headers: { Authorization: `Bearer ${spotifyAccessToken}` },
-      });
+      const response = await fetch(searchUrl);
+      const data = await response.json();
 
-      if (artistResponse.status === 401) {
-        await getSpotifyToken(); // refresh token
-        artistResponse = await fetch(artistSearchUrl, {
-          headers: { Authorization: `Bearer ${spotifyAccessToken}` },
-        });
-      }
+      if (data.data && data.data.length > 0) {
+        const tracksWithPreview = data.data.filter(track => track.preview);
 
-      const artistData = await artistResponse.json();
-      if (!artistData.artists || !artistData.artists.items) continue;
-
-      for (const artist of artistData.artists.items) {
-        // 2️⃣ Get artist's top tracks
-        const topTracksUrl = `https://api.spotify.com/v1/artists/${artist.id}/top-tracks?market=TR`;
-        let tracksResponse = await fetch(topTracksUrl, {
-          headers: { Authorization: `Bearer ${spotifyAccessToken}` },
-        });
-
-        if (tracksResponse.status === 401) {
-          await getSpotifyToken();
-          tracksResponse = await fetch(topTracksUrl, {
-            headers: { Authorization: `Bearer ${spotifyAccessToken}` },
-          });
-        }
-
-        const tracksData = await tracksResponse.json();
-        if (!tracksData.tracks) continue;
-
-        const tracksWithPreview = tracksData.tracks.filter((track) => track.preview_url);
-        const mappedTracks = tracksWithPreview.map((track) => ({
+        const mappedTracks = tracksWithPreview.map(track => ({
           id: track.id,
-          title: track.name,
-          artist: { name: artist.name },
+          title: track.title,
+          artist: { name: track.artist.name },
           album: {
-            title: track.album.name,
-            cover_medium: track.album.images[1]?.url || track.album.images[0]?.url,
-            cover_big: track.album.images[0]?.url,
-            cover_xl: track.album.images[0]?.url,
+            title: track.album.title,
+            cover_medium: track.album.cover_medium,
+            cover_big: track.album.cover_big,
+            cover_xl: track.album.cover_xl,
           },
-          preview: track.preview_url,
+          preview: track.preview,
         }));
 
         currentSongs.push(...mappedTracks);
@@ -162,11 +98,11 @@ async function loadSongs() {
       currentIndex = 0;
       displayCurrentSong();
     } else {
-      alert("Ingen sanger funnet med forhåndsvisning. Prøv andre sjangre.");
+      alert("Hiç şarkı bulunamadı. Lütfen başka bir genre seçin.");
     }
   } catch (error) {
     console.error("Error loading songs:", error);
-    alert("Kunne ikke laste sanger. Prøv igjen senere.");
+    alert("Şarkılar yüklenirken hata oluştu. Lütfen tekrar deneyin.");
   } finally {
     loadingEl.classList.add("hidden");
   }

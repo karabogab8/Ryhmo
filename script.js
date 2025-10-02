@@ -2,15 +2,16 @@
 const DEEZER_API = "https://api.allorigins.win/raw?url=";
 const DEEZER_BASE = "https://api.deezer.com";
 
+// Genre ID Mapping
 const genreMapping = {
-  pop: "pop",
-  rock: "rock",
-  hiphop: "hip-hop",
-  electronic: "electronic",
-  jazz: "jazz",
-  classical: "classical",
-  country: "country",
-  rnb: "r-n-b",
+  pop: 132,
+  rock: 152,
+  hiphop: 116,
+  electronic: 106,
+  jazz: 129,
+  classical: 98,
+  country: 144,
+  rnb: 165,
 };
 
 let currentSongs = [];
@@ -65,14 +66,25 @@ async function loadSongs() {
 
   try {
     for (const genre of selectedGenres) {
-      const genreName = genreMapping[genre];
-      const searchUrl = `${DEEZER_API}${encodeURIComponent(`${DEEZER_BASE}/search?q=genre:"${genreName}"&limit=50`)}`;
+      const genreId = genreMapping[genre];
 
-      const response = await fetch(searchUrl);
-      const data = await response.json();
+      // 1️⃣ Get artists for genre
+      const artistsUrl = `${DEEZER_API}${encodeURIComponent(`${DEEZER_BASE}/genre/${genreId}/artists`)}`;
+      const artistsRes = await fetch(artistsUrl);
+      const artistsData = await artistsRes.json();
 
-      if (data.data && data.data.length > 0) {
-        const tracksWithPreview = data.data.filter(track => track.preview);
+      if (!artistsData.data || artistsData.data.length === 0) continue;
+
+      for (const artist of artistsData.data) {
+        // 2️⃣ Get top tracks for each artist
+        const topTracksUrl = `${DEEZER_API}${encodeURIComponent(`${DEEZER_BASE}/artist/${artist.id}/top?limit=5`)}`;
+        const tracksRes = await fetch(topTracksUrl);
+        const tracksData = await tracksRes.json();
+
+        if (!tracksData.data || tracksData.data.length === 0) continue;
+
+        // 3️⃣ Filter tracks with preview
+        const tracksWithPreview = tracksData.data.filter(track => track.preview);
 
         const mappedTracks = tracksWithPreview.map(track => ({
           id: track.id,
@@ -143,9 +155,7 @@ function playPreview(previewUrl) {
   }
 
   const songImage = document.querySelector(".song-image");
-  if (songImage) {
-    songImage.classList.remove("paused");
-  }
+  if (songImage) songImage.classList.remove("paused");
 
   currentAudio = new Audio(previewUrl);
   currentAudio.volume = 0.5;
@@ -257,9 +267,6 @@ function playLikedSong(previewUrl) {
 document.addEventListener("keydown", (e) => {
   if (!mainScreen.classList.contains("active")) return;
 
-  if (e.key === "ArrowRight") {
-    likeBtn.click();
-  } else if (e.key === "ArrowLeft") {
-    skipBtn.click();
-  }
+  if (e.key === "ArrowRight") likeBtn.click();
+  else if (e.key === "ArrowLeft") skipBtn.click();
 });

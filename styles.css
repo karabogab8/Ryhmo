@@ -263,15 +263,6 @@ body {
   animation: vinylSpin 3s linear infinite;
 }
 
-@keyframes vinylSpin {
-  from {
-    transform: translate(-50%, -50%) rotate(0deg);
-  }
-  to {
-    transform: translate(-50%, -50%) rotate(360deg);
-  }
-}
-
 .song-image.paused img,
 .song-image.paused::before,
 .song-image.paused::after {
@@ -431,6 +422,75 @@ body {
   padding: 3rem;
 }
 
+/* Lyrics Section Styling */
+.lyrics-section {
+  max-width: 400px;
+  margin: 0 auto 2rem;
+  padding: 1.5rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.lyrics-title {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: #fff;
+  text-align: center;
+}
+
+.lyrics-content {
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: #ccc;
+  text-align: center;
+  white-space: pre-line;
+}
+
+.lyrics-section::-webkit-scrollbar {
+  width: 6px;
+}
+
+.lyrics-section::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 3px;
+}
+
+.lyrics-section::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 3px;
+}
+
+.lyrics-section::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* Swipe Animation Classes */
+.song-card.swipe-left {
+  animation: swipeLeft 0.3s ease-out forwards;
+}
+
+.song-card.swipe-right {
+  animation: swipeRight 0.3s ease-out forwards;
+}
+
+@keyframes swipeLeft {
+  to {
+    transform: translateX(-150%) rotate(-20deg);
+    opacity: 0;
+  }
+}
+
+@keyframes swipeRight {
+  to {
+    transform: translateX(150%) rotate(20deg);
+    opacity: 0;
+  }
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -439,6 +499,15 @@ body {
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@keyframes vinylSpin {
+  from {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  to {
+    transform: translate(-50%, -50%) rotate(360deg);
   }
 }
 
@@ -466,6 +535,12 @@ body {
     max-width: 350px;
   }
 
+  .lyrics-section {
+    max-width: 350px;
+    padding: 1rem;
+    max-height: 150px;
+  }
+
   .control-btn {
     width: 60px;
     height: 60px;
@@ -488,6 +563,10 @@ body {
 
   .genre-grid {
     grid-template-columns: repeat(3, 1fr);
+  }
+
+  .lyrics-section {
+    max-width: 450px;
   }
 }
 
@@ -526,6 +605,13 @@ body {
   .song-card {
     padding: 1rem;
     max-width: 320px;
+  }
+
+  .lyrics-section {
+    max-width: 320px;
+    padding: 0.75rem;
+    max-height: 120px;
+    font-size: 0.8rem;
   }
 
   .controls {
